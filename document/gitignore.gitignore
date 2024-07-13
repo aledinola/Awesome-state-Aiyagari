@@ -1,0 +1,8 @@
+# Tex garbage
+*.log
+*.out
+*.bbl
+*.brf
+*.bak
+*.aaa
+*.aux
