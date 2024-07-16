@@ -10,25 +10,17 @@
 \usepackage[a4paper]{geometry}
 \usepackage{color}
 \usepackage{array}
-\usepackage[capposition=top]{floatrow}
-\usepackage{multirow}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\usepackage{esint}
-\usepackage{booktabs}
 \usepackage[authoryear]{natbib}
 \usepackage{ulem}
-\usepackage{arydshln}
 \usepackage{rotating}
-\usepackage{numprint}
 \usepackage[unicode=true,
 bookmarks=true,bookmarksnumbered=false,bookmarksopen=true,bookmarksopenlevel=1,
 breaklinks=true,pdfborder={0 0 1},backref=section,colorlinks=true]{hyperref}
 \usepackage{amsthm}
 \usepackage{color}
-\usepackage{placeins}
-\usepackage{subcaption}
 \usepackage{amsfonts}
 \usepackage[title]{appendix}
 
@@ -37,7 +29,7 @@ breaklinks=true,pdfborder={0 0 1},backref=section,colorlinks=true]{hyperref}
 %TCIDATA{Version=5.50.0.2953}
 %TCIDATA{<META NAME="SaveForMode" CONTENT="1">}
 %TCIDATA{BibliographyScheme=Manual}
-%TCIDATA{LastRevised=Saturday, July 13, 2024 18:11:06}
+%TCIDATA{LastRevised=Sunday, July 14, 2024 23:45:25}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 
 \geometry{verbose}
@@ -65,7 +57,109 @@ plainpages=false,urlcolor=magenta,citecolor=magenta,linkcolor=blue,pdfstartview=
 \maketitle
 
 \begin{itemize}
-\item Equati
+\item Young individual's problem:%
+\begin{equation*}
+V^{Y}(a,e)=\max_{l,a^{\prime }}\left\{ \frac{\left( c^{\gamma }\left(
+1-l\right) ^{1-\gamma }\right) ^{1-\sigma }}{1-\sigma }+\beta \left(
+1-p_{ret}\right) \sum_{e^{\prime }}V^{Y}(a^{\prime },e^{\prime })\Pi
+^{e}(e,e^{\prime })+\beta p_{ret}V^{R}(a^{\prime })\right\} 
+\end{equation*}%
+subject to%
+\begin{equation*}
+c+a^{\prime }=wel+(1+r)a,
+\end{equation*}%
+\begin{equation*}
+a^{\prime }\geq 0.
+\end{equation*}%
+Policy functions: $a^{\prime }=g_{a^{\prime }}^{Y}(a,e)$ and $%
+l=g_{l}^{Y}(a,e)$.
+
+\item Old individual's problem:%
+\begin{equation*}
+V^{R}(a)=\max_{a^{\prime }}\left\{ \frac{c^{1-\sigma }}{1-\sigma }+\beta
+p_{death}\sum_{e^{\prime }}V^{Y}(a^{\prime },e^{\prime })G^{e}(e^{\prime
+})+\beta \left( 1-p_{death}\right) V^{R}(a^{\prime })\right\} 
+\end{equation*}%
+subject to%
+\begin{equation*}
+c+a^{\prime }=\omega _{ret}+(1+r)a,
+\end{equation*}%
+\begin{equation*}
+a^{\prime }\geq 0.
+\end{equation*}%
+Here $\Pi ^{e}$ denotes the transition matrix of the idiosyncratic shock $e$%
+, $G^{e}$ denotes the \textit{initial} distribution of $e$. Pension benefits
+are denoted as $\omega _{ret}$. Policy function: $a^{\prime }=g_{a^{\prime
+}}^{R}(a)$.
+
+\item Stationary distribution $\left[ \mu ^{Y}(a,e),\mu ^{R}(a)\right] $
+satisfies%
+\begin{equation*}
+\mu ^{Y}(a^{\prime },e^{\prime })=\left( 1-p_{ret}\right) \sum_{a}\sum_{e}%
+\mathbb{I}_{\left\{ a^{\prime }=g_{a^{\prime }}^{Y}\left( a,e\right)
+\right\} }\Pi ^{e}(e,e^{\prime })\mu ^{Y}(a,e)+p_{death}\sum_{a}\mathbb{I}%
+_{\left\{ a^{\prime }=g_{a^{\prime }}^{R}\left( a\right) \right\}
+}G^{e}(e^{\prime })\mu ^{R}(a)
+\end{equation*}%
+\begin{equation*}
+\mu ^{R}(a^{\prime })=p_{ret}\sum_{a}\sum_{e}\mathbb{I}_{\left\{ a^{\prime
+}=g_{a^{\prime }}^{Y}\left( a,e\right) \right\} }\mu
+^{Y}(a,e)+(1-p_{death})\sum_{a}\mathbb{I}_{\left\{ a^{\prime }=g_{a^{\prime
+}}^{R}\left( a\right) \right\} }\mu ^{R}(a)
+\end{equation*}
+
+\item \textbf{Calibration}. Guvenen et al. (2023) assume that newborn
+individuals draw their initial labor efficiency from the initial
+distribution $G^{e}$. Guvenen et al. (2023) set $n_{e}=4$, and take the
+values $e_{1}$,$e_{2},e_{3}$ and the $4\times 4$ transition matrix $\Pi ^{e}$
+from Castaneda, Diaz-Gimenez and Rios-Rull (2003, Tables 4-5). They
+calibrate $e_{n_{e}}$, the value of the \textquotedblleft
+awesome\textquotedblright\ state, to match a share of wealth held by the top
+1\% equal to $30\%$. They calibrate $\omega _{ret}$ so that the ratio of
+pension benefits to GDP is equal to $4.9\%$. For simplicity, they set $G^{e}$
+equal to the stationary distribution of labor efficiency, $\gamma ^{e}$.
+
+\item \textbf{VFI toolkit}. We combine $e=\left[ e_{1},\ldots ,e_{4}\right] $
+and $age=[Y,R]$ into 
+\begin{equation*}
+z\_grid=[e\_grid;age\_grid]
+\end{equation*}%
+obtaining a vector with $2n_{e}$ points for the exogenous state. Note that
+this wastes grid points since we need only $n_{e}+1$ values for the
+exogenous state $z$!. We set the transition matrix for the exogenous state $z
+$ as follows%
+\begin{equation*}
+\underbrace{\Pi ^{z}}_{2n_{e}\times 2n_{e}}=%
+\begin{bmatrix}
+\left( 1-p_{ret}\right) \underbrace{\Pi ^{e}(e,e^{\prime })}_{n_{e}\times
+n_{e}} & p_{ret}I_{n_{e}} \\ 
+p_{death}\underbrace{ones(n_{e},1)G^{e}}_{n_{e}\times n_{e}} & \left(
+1-p_{death}\right) I_{n_{e}}%
+\end{bmatrix}%
+\end{equation*}%
+where $I_{n_{e}}$ denotes the $n_{e}\times n_{e}$ identity matrix and $%
+ones(n_{e},1)G^{e}$ denotes a matrix with $G^{e}$ in every row. Let $%
+n_{z}=2n_{e}$. The toolkit will compute the arrays $V$, $Policy$ and $%
+StationaryDist$%
+\begin{equation*}
+V:n_{a}\times n_{e}\times n_{age}\text{ array}
+\end{equation*}%
+\begin{equation*}
+Policy:2\times n_{a}\times n_{e}\times n_{age}\text{ array}
+\end{equation*}%
+\begin{equation*}
+StationaryDist:n_{a}\times n_{e}\times n_{age}\text{ array}
+\end{equation*}%
+Note that 
+\begin{eqnarray*}
+g_{l}(a,e,age) &=&Policy(1,a,e,age), \\
+g_{a^{\prime }}(a,e,age) &=&Policy(2,a,e,age),
+\end{eqnarray*}%
+where $a=1,..,n_{a}$, $e=1,..,n_{e}$ and $age=Y,R$. Note that e.g. $V(a,e,R)$
+must be the same for all $e$, since once the individual is retired the only
+relevant state variable is $a$, not labor productivity.
+
+\item \textbf{VFI toolkit with correlated shocks}. TBA.
 \end{itemize}
 
 \end{document}
