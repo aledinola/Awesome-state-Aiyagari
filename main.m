@@ -1,16 +1,10 @@
 %% Replication of Appendix E.2 of GKKOC "Use it or Lose it", QJE 2023
-clear
-clc
-close all
+clear;clc;close all
 format long g
-% This is the folder where the VFI toolkit files are saved
-folder1 = 'C:\Users\aledi\Documents\GitHub\VFIToolkit-matlab';
-%folder2 = fullfile('..','tools');
-addpath(genpath(folder1))
+addpath(genpath('C:\Users\aledi\Documents\GitHub\VFIToolkit-matlab'))
 
 %% Set flags
-do_GE = 0;     % 0=No general equilibrium,1=general eqm
-m_toolkit = 2; % Toolkit method: 1=default, 2=correlated shocks
+%m_toolkit = 2; % Toolkit method: 1=default, 2=correlated shocks
 
 %% Set economic parameters
 % Mostly taken from Table II of GKKOC (2023)
@@ -25,7 +19,7 @@ Params.pen   = 1;     % Pension benefits
 Params.prob_ret   = 0.022;
 Params.prob_death = 0.066;
 
-% Initial guess for K/L ratio
+% K/L ratio to pin down prices. We are in PARTIAL equilibrium
 Params.K_to_L = 14.04; % 12 gives err>0
 r = Params.alpha*Params.K_to_L^(Params.alpha-1)-Params.delta;
 w = (1-Params.alpha)*Params.K_to_L^Params.alpha;
@@ -65,23 +59,46 @@ a_grid  = a_min+(a_max-a_min)*(linspace(0,1,n_a).^a_curve)';
 
 %grid for labor
 n_d    = 51;
-d_grid = linspace(0.001,0.999,n_d)';
+d_grid = linspace(0,0.999,n_d)';
 
-if m_toolkit==1
-    tic
-    [p_eqm,V,Policy,StationaryDist,AggVars,AllStats,TopWealthShares] = ...
-        solve_toolkit_default(Params,e_grid,age_grid,G_e,a_grid,d_grid,n_e,...
-        n_age,n_a,n_d,pi_e,do_GE);
-    toc
-elseif m_toolkit==2
-    tic
-    [p_eqm,V,Policy,StationaryDist,AggVars,AllStats,TopWealthShares] = ...
-        solve_toolkit_CORR_SHOCKS(Params,e_grid,age_grid,G_e,a_grid,d_grid,n_e,...
-        n_age,n_a,n_d,pi_e,do_GE);
-    toc
-else
-    error('m_toolkit out of bounds')
-end
+disp('TOOLKIT standard')
+tic
+[V1,Policy1,StationaryDist1,AggVars1,AllStats1,TopWealthShares1] = ...
+    solve_toolkit_default(Params,e_grid,age_grid,G_e,a_grid,d_grid,n_e,...
+    n_age,n_a,n_d,pi_e);
 
-disp('p_eqm')
-disp(p_eqm)
+toc
+
+disp('===================================================================')
+disp('TOOLKIT CORRELATED SHOCKS')
+tic
+[V2,Policy2,StationaryDist2,AggVars2,AllStats2,TopWealthShares2] = ...
+    solve_toolkit_CORR_SHOCKS(Params,e_grid,age_grid,G_e,a_grid,d_grid,n_e,...
+    n_age,n_a,n_d,pi_e);
+
+toc
+
+%% COMPARISON
+disp('===================================================================')
+disp('Compare method 1 to method 2')
+
+% Policy1 is (2,n_a,n_e,n_age)
+% Policy2 is (2,n_a,n_z(1)) where n_z(1)=n_e+1
+
+% Compare policy for a' across two methods
+Policy_a_m1 = [squeeze(Policy1(2,:,:,1)),shiftdim(Policy1(2,:,1,2),1)]; % (n_a,n_e+1)
+Policy_a_m2 = squeeze(Policy2(2,:,:)); % (n_a,n_e+1)
+
+errP = max(abs(Policy_a_m1-Policy_a_m2),[],"all");
+disp('||Policy_a_m1-Policy_a_m2||')
+disp(errP)
+
+% StationaryDist1 is (n_a,n_e,n_age)
+% StationaryDist2 is (n_a,n_e+1)
+
+StationaryDist_m1 = [StationaryDist1(:,:,1),StationaryDist1(:,1,2)]; % (n_a,n_e+1)
+StationaryDist_m2 = StationaryDist2; % (n_a,n_e+1)
+
+errS = max(abs(StationaryDist_m1-StationaryDist_m2),[],"all");
+disp('||StationaryDist_m1-StationaryDist_m2||')
+disp(errS)
