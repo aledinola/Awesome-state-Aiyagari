@@ -4,7 +4,8 @@ format long g
 addpath(genpath('C:\Users\aledi\Documents\GitHub\VFIToolkit-matlab'))
 
 %% Set flags
-%m_toolkit = 2; % Toolkit method: 1=default, 2=correlated shocks
+% Toolkit method: 1=only default, 2=only correlated shocks,3=do both and compare
+m_toolkit = 2; 
 
 %% Set economic parameters
 % Mostly taken from Table II of GKKOC (2023)
@@ -96,7 +97,7 @@ disp(errP)
 % StationaryDist1 is (n_a,n_e,n_age)
 % StationaryDist2 is (n_a,n_e+1)
 
-StationaryDist_m1 = [StationaryDist1(:,:,1),StationaryDist1(:,1,2)]; % (n_a,n_e+1)
+StationaryDist_m1 = [StationaryDist1(:,:,1),sum(StationaryDist1(:,:,2),2)]; % (n_a,n_e+1)
 StationaryDist_m2 = StationaryDist2; % (n_a,n_e+1)
 
 errS = max(abs(StationaryDist_m1-StationaryDist_m2),[],"all");

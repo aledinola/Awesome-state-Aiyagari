@@ -125,6 +125,7 @@ ylabel('Labor supply, l')
 %% Stationary Distribution
 simoptions = struct(); 
 simoptions.verbose = verbose;
+simoptions.tolerance = 1e-9;
 StationaryDist=StationaryDist_Case1(Policy,n_d,n_a,n_z,pi_z, simoptions);
 
 disp('Size of StationaryDist:')
