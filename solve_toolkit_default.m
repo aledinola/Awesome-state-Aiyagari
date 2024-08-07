@@ -7,7 +7,7 @@ function [V,Policy,StationaryDist,AggVars,AllStats,TopWealthShares] = ...
 % If e_grid has J points, z_grid will have 2*J points (all combos)
 % This is a waste since once retired, e is not a state anymore
 
-verbose = 0;
+verbose = 1;
 
 % - Set grid and transition prob for exogenous state z
 n_z    = [n_e,n_age];
