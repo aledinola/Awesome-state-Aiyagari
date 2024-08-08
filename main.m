@@ -5,7 +5,7 @@ addpath(genpath('C:\Users\aledi\Documents\GitHub\VFIToolkit-matlab'))
 
 %% Set flags
 verbose  = 1;
-parallel = 0; %0=serial CPU, 1=parallel CPU, 2=parallel GPU
+parallel = 1; %0=serial CPU, 1=parallel CPU, 2=parallel GPU
 
 %% Set economic parameters
 % Mostly taken from Table II of GKKOC (2023)
@@ -59,10 +59,10 @@ n_a     = 601;
 a_grid  = a_min+(a_max-a_min)*(linspace(0,1,n_a).^a_curve)';
 
 %grid for labor
-%n_d    = 5;
-%d_grid = linspace(0,0.999,n_d)';
-n_d    = 2;
-d_grid = 0.999*ones(n_d,1);
+n_d    = 11;
+d_grid = linspace(0,0.999,n_d)';
+%n_d    = 2;
+%d_grid = 0.999*ones(n_d,1);
 
 disp('TOOLKIT standard')
 tic

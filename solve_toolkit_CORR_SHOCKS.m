@@ -123,6 +123,7 @@ ylabel('Labor supply, l')
 %% Stationary Distribution
 simoptions = struct(); 
 simoptions.verbose = verbose;
+simoptions.parallel = parallel;
 simoptions.tolerance = 1e-9;
 StationaryDist=StationaryDist_Case1(Policy,n_d,n_a,n_z,pi_z, simoptions);
 
@@ -145,11 +146,17 @@ xlabel('Current-period assets, a')
 
 %% Aggregate variables
 
+tic
 AggVars=EvalFnOnAgentDist_AggVars_Case1(StationaryDist,Policy,FnsToEvaluate,...
     Params,[],n_d,n_a,n_z,d_grid,a_grid,z_grid,parallel);
+time_Agg = toc;
+fprintf('Time to compute AggVars:  %f \n',time_Agg)
 
+tic
 AllStats=EvalFnOnAgentDist_AllStats_Case1(StationaryDist,Policy,FnsToEvaluate,...
     Params,[],n_d,n_a,n_z,d_grid,a_grid,z_grid,simoptions);
+time_All = toc;
+fprintf('Time to compute AllStats:  %f \n',time_All)
 
 TopWealthShares=100*(1-AllStats.Wealth.LorenzCurve([80,95,99])); % Need the 20,5,and 1 top shares
 
