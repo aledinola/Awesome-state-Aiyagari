@@ -1,13 +1,11 @@
 function [V,Policy,StationaryDist,AggVars,AllStats,TopWealthShares] = ...
     solve_toolkit_default(Params,e_grid,age_grid,G_e,a_grid,d_grid,n_e,...
-    n_age,n_a,n_d,pi_e)
+    n_age,n_a,n_d,pi_e,verbose,parallel)
 
 %% Solve model using toolkit with inefficient method
 % z_grid = [e_grid;age_grid]
 % If e_grid has J points, z_grid will have 2*J points (all combos)
 % This is a waste since once retired, e is not a state anymore
-
-verbose = 1;
 
 % - Set grid and transition prob for exogenous state z
 n_z    = [n_e,n_age];
@@ -45,7 +43,8 @@ FnsToEvaluate.Pensions = @(d,aprime,a,e,age,pen) pen*(age==2);
 
 vfoptions=struct(); % Use default options for solving the value function (and policy fn)
 %vfoptions.lowmemory = 1;
-vfoptions.verbose = verbose;
+vfoptions.verbose  = verbose;
+vfoptions.parallel = parallel;
 
 [V,Policy]=ValueFnIter_Case1(n_d,n_a,n_z,d_grid,a_grid,z_grid, pi_z, ReturnFn, Params, DiscountFactorParamNames, [], vfoptions);
 
@@ -137,7 +136,7 @@ xlabel('Current-period assets, a')
 %% Aggregate variables
 
 AggVars=EvalFnOnAgentDist_AggVars_Case1(StationaryDist,Policy,FnsToEvaluate,...
-    Params,[],n_d,n_a,n_z,d_grid,a_grid,z_grid);
+    Params,[],n_d,n_a,n_z,d_grid,a_grid,z_grid,parallel);
 
 AllStats=EvalFnOnAgentDist_AllStats_Case1(StationaryDist,Policy,FnsToEvaluate,...
     Params,[],n_d,n_a,n_z,d_grid,a_grid,z_grid,simoptions);

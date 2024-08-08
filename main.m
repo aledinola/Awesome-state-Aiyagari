@@ -4,8 +4,8 @@ format long g
 addpath(genpath('C:\Users\aledi\Documents\GitHub\VFIToolkit-matlab'))
 
 %% Set flags
-% Toolkit method: 1=only default, 2=only correlated shocks,3=do both and compare
-m_toolkit = 2; 
+verbose  = 1;
+parallel = 0; %0=serial CPU, 1=parallel CPU, 2=parallel GPU
 
 %% Set economic parameters
 % Mostly taken from Table II of GKKOC (2023)
@@ -59,14 +59,14 @@ n_a     = 601;
 a_grid  = a_min+(a_max-a_min)*(linspace(0,1,n_a).^a_curve)';
 
 %grid for labor
-n_d    = 51;
+n_d    = 5;
 d_grid = linspace(0,0.999,n_d)';
 
 disp('TOOLKIT standard')
 tic
 [V1,Policy1,StationaryDist1,AggVars1,AllStats1,TopWealthShares1] = ...
     solve_toolkit_default(Params,e_grid,age_grid,G_e,a_grid,d_grid,n_e,...
-    n_age,n_a,n_d,pi_e);
+    n_age,n_a,n_d,pi_e,verbose,parallel);
 
 toc
 
@@ -75,7 +75,7 @@ disp('TOOLKIT CORRELATED SHOCKS')
 tic
 [V2,Policy2,StationaryDist2,AggVars2,AllStats2,TopWealthShares2] = ...
     solve_toolkit_CORR_SHOCKS(Params,e_grid,age_grid,G_e,a_grid,d_grid,n_e,...
-    n_age,n_a,n_d,pi_e);
+    n_age,n_a,n_d,pi_e,verbose,parallel);
 
 toc
 

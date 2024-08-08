@@ -1,6 +1,6 @@
 function [V,Policy,StationaryDist,AggVars,AllStats,TopWealthShares] = ...
     solve_toolkit_CORR_SHOCKS(Params,e_grid,age_grid,G_e,a_grid,d_grid,n_e,...
-    n_age,n_a,n_d,pi_e)
+    n_age,n_a,n_d,pi_e,verbose,parallel)
 
 %% Solve model using toolkit with correlated shocks
 % DUMB METHOD
@@ -18,8 +18,6 @@ function [V,Policy,StationaryDist,AggVars,AllStats,TopWealthShares] = ...
 %           e_ne,Young
 %           NaN,Retired]
 
-verbose = 0;
-
 % - Set grid and transition prob for exogenous state z
 n_z    = [n_e+1,1];
 z_grid = [e_grid,age_grid(1)*ones(n_e,1)
@@ -35,7 +33,6 @@ end
 if n_z(1)~=(n_e+1)
     error('Num. of grid points for exog shock must be n_e+1')
 end
-
 
 %% Setup Return function
 DiscountFactorParamNames={'beta'};
@@ -66,6 +63,7 @@ FnsToEvaluate.Pensions = @(d,aprime,a,e,age,pen) pen*(age==2);
 vfoptions=struct(); % Use default options for solving the value function (and policy fn)
 %vfoptions.lowmemory = 1;
 vfoptions.verbose = verbose;
+vfoptions.parallel = parallel;
 
 [V,Policy]=ValueFnIter_Case1(n_d,n_a,n_z,d_grid,a_grid,z_grid, pi_z, ReturnFn, Params, DiscountFactorParamNames, [], vfoptions);
 
@@ -148,7 +146,7 @@ xlabel('Current-period assets, a')
 %% Aggregate variables
 
 AggVars=EvalFnOnAgentDist_AggVars_Case1(StationaryDist,Policy,FnsToEvaluate,...
-    Params,[],n_d,n_a,n_z,d_grid,a_grid,z_grid);
+    Params,[],n_d,n_a,n_z,d_grid,a_grid,z_grid,parallel);
 
 AllStats=EvalFnOnAgentDist_AllStats_Case1(StationaryDist,Policy,FnsToEvaluate,...
     Params,[],n_d,n_a,n_z,d_grid,a_grid,z_grid,simoptions);
