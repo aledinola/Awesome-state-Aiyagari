@@ -5,7 +5,7 @@ addpath(genpath('C:\Users\aledi\Documents\GitHub\VFIToolkit-matlab'))
 
 %% Set flags
 verbose  = 1;
-parallel = 1; %0=serial CPU, 1=parallel CPU, 2=parallel GPU
+parallel = 0; %0=serial CPU, 1=parallel CPU, 2=parallel GPU
 
 %% Set economic parameters
 % Mostly taken from Table II of GKKOC (2023)
