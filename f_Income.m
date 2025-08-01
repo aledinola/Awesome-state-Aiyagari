@@ -1,4 +1,4 @@
-function income = IncomeFn(d,aprime,a,e,age,K_to_L,alpha,delta,pen)
+function income = f_Income(d,aprime,a,e,age,r,alpha,delta,pen)
 % INPUTS
 %   d:       Hours worked
 %   aprime:  Next-period's assets
@@ -6,10 +6,9 @@ function income = IncomeFn(d,aprime,a,e,age,K_to_L,alpha,delta,pen)
 %   e:       Labor efficiency shock
 %   age:     Age of individual: young or old
 % TOOLKIT NOTATION
-% (d,aprime,a,z), where z = [e;age]
+% (d,aprime,a,z), where z = [e,age]
 
-r = alpha*K_to_L^(alpha-1)-delta;
-w = (1-alpha)*K_to_L^alpha;
+w = fun_prices(r,alpha,delta);
 
 income = (w*e*d)*(age==1)+pen*(age==2)+r*a;
 

@@ -1,4 +1,4 @@
-function F = f_ReturnFn(d,aprime,a,e,age,K_to_L,alpha,delta,pen,gamma,crra)
+function F = f_ReturnFn(d,aprime,a,e,age,r,alpha,delta,pen,gamma,sigma)
 % INPUTS
 %   d:       Hours worked
 %   aprime:  Next-period's assets
@@ -6,12 +6,11 @@ function F = f_ReturnFn(d,aprime,a,e,age,K_to_L,alpha,delta,pen,gamma,crra)
 %   e:       Labor efficiency shock
 %   age:     Age of individual: young or old
 % TOOLKIT NOTATION
-% (d,aprime,a,z), where z = [e;age]
+% (d,aprime,a,z), where z = [e,age]
 
 F = -inf;
 
-r = alpha*K_to_L^(alpha-1)-delta;
-w = (1-alpha)*K_to_L^alpha;
+w = fun_prices(r,alpha,delta);
 
 income = (w*e*d)*(age==1)+pen*(age==2)+r*a;
 
@@ -21,7 +20,7 @@ if c>0
     % NOTE: 0<l<1 is already built into the grid
     % WARNING: this will not work if crra=1
     inside = (c^gamma)*((1-d)^(1-gamma));
-    F = inside^(1-crra)/(1-crra);
+    F = inside^(1-sigma)/(1-sigma);
 end
 
 end

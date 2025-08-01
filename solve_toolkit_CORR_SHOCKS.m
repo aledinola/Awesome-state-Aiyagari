@@ -19,26 +19,10 @@ function [V,Policy,StationaryDist,AggVars,AllStats,TopWealthShares] = ...
 %           NaN,Retired]
 
 % - Set grid and transition prob for exogenous state z
-n_z    = [n_e+1,1];
-z_grid = [e_grid,age_grid(1)*ones(n_e,1)
-          0,     age_grid(2)];
 
-pi_z = [(1-Params.prob_ret)*pi_e, Params.prob_ret*ones(n_e,1);
-        Params.prob_death*G_e',   (1-Params.prob_death)];
-
-% Check size of pi_z
-if ~isequal(size(pi_z),[n_e+1,n_e+1])
-    error('pi_z has wrong size!')
-end
-if n_z(1)~=(n_e+1)
-    error('Num. of grid points for exog shock must be n_e+1')
-end
 
 %% Setup Return function
-DiscountFactorParamNames={'beta'};
 
-ReturnFn = @(d,aprime,a,e,age,K_to_L,alpha,delta,pen,gamma,crra) ...
-    f_ReturnFn(d,aprime,a,e,age,K_to_L,alpha,delta,pen,gamma,crra);
 
 %% Set Functions to evaluate
 % Functions to be evaluated

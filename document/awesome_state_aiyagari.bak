@@ -29,7 +29,7 @@ breaklinks=true,pdfborder={0 0 1},backref=section,colorlinks=true]{hyperref}
 %TCIDATA{Version=5.50.0.2953}
 %TCIDATA{<META NAME="SaveForMode" CONTENT="1">}
 %TCIDATA{BibliographyScheme=Manual}
-%TCIDATA{LastRevised=Sunday, July 14, 2024 23:45:25}
+%TCIDATA{LastRevised=Friday, August 01, 2025 18:07:52}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 
 \geometry{verbose}
@@ -57,22 +57,26 @@ plainpages=false,urlcolor=magenta,citecolor=magenta,linkcolor=blue,pdfstartview=
 \maketitle
 
 \begin{itemize}
+\item Notation. Here $\Pi ^{e}$ denotes the transition matrix of the
+idiosyncratic shock $e$, $G^{e}$ denotes the \textit{initial} distribution
+of $e$. Pension benefits are denoted as $\omega _{ret}$.
+
 \item Young individual's problem:%
 \begin{equation*}
-V^{Y}(a,e)=\max_{l,a^{\prime }}\left\{ \frac{\left( c^{\gamma }\left(
-1-l\right) ^{1-\gamma }\right) ^{1-\sigma }}{1-\sigma }+\beta \left(
+V^{Y}(a,e)=\max_{l,a^{\prime }}\left\{ \frac{\left( c^{\gamma }\left( 1-\ell
+\right) ^{1-\gamma }\right) ^{1-\sigma }}{1-\sigma }+\beta \left(
 1-p_{ret}\right) \sum_{e^{\prime }}V^{Y}(a^{\prime },e^{\prime })\Pi
 ^{e}(e,e^{\prime })+\beta p_{ret}V^{R}(a^{\prime })\right\} 
 \end{equation*}%
 subject to%
 \begin{equation*}
-c+a^{\prime }=wel+(1+r)a,
+c+a^{\prime }=we\ell +(1+r)a,
 \end{equation*}%
 \begin{equation*}
 a^{\prime }\geq 0.
 \end{equation*}%
-Policy functions: $a^{\prime }=g_{a^{\prime }}^{Y}(a,e)$ and $%
-l=g_{l}^{Y}(a,e)$.
+Policy functions: $a^{\prime }=g_{a^{\prime }}^{Y}(a,e)$ and $\ell =g_{\ell
+}^{Y}(a,e)$.
 
 \item Old individual's problem:%
 \begin{equation*}
@@ -87,10 +91,8 @@ c+a^{\prime }=\omega _{ret}+(1+r)a,
 \begin{equation*}
 a^{\prime }\geq 0.
 \end{equation*}%
-Here $\Pi ^{e}$ denotes the transition matrix of the idiosyncratic shock $e$%
-, $G^{e}$ denotes the \textit{initial} distribution of $e$. Pension benefits
-are denoted as $\omega _{ret}$. Policy function: $a^{\prime }=g_{a^{\prime
-}}^{R}(a)$.
+Policy function: $a^{\prime }=g_{a^{\prime }}^{R}(a)$ (and implicitly $\ell
+=g_{\ell }^{R}(a,e)=0$).
 
 \item Stationary distribution $\left[ \mu ^{Y}(a,e),\mu ^{R}(a)\right] $
 satisfies%
@@ -107,6 +109,59 @@ _{\left\{ a^{\prime }=g_{a^{\prime }}^{R}\left( a\right) \right\}
 ^{Y}(a,e)+(1-p_{death})\sum_{a}\mathbb{I}_{\left\{ a^{\prime }=g_{a^{\prime
 }}^{R}\left( a\right) \right\} }\mu ^{R}(a)
 \end{equation*}
+
+\item \textbf{Aggregate variables}. Firms operate a Cobb-Douglas production
+function:%
+\begin{equation*}
+Y=K^{\alpha }L^{1-\alpha }
+\end{equation*}%
+Prices are determined competitively:%
+\begin{equation*}
+r=\alpha \left( \frac{K}{L}\right) ^{\alpha -1}-\delta \text{, and }w=\left(
+1-\alpha \right) \left( \frac{K}{L}\right) ^{\alpha }
+\end{equation*}%
+Aggregate capital is%
+\begin{equation*}
+K=\sum_{a}\sum_{e}ad\mu \left( a,e\right) 
+\end{equation*}%
+Aggregate labor is 
+\begin{equation*}
+L=\sum_{a}\sum_{e}e\times g_{\ell }^{Y}(a,e)d\mu \left( a,e\right) 
+\end{equation*}
+
+\item \textbf{General equilibrium loop}. We follow this iterative algorithm:
+
+\begin{enumerate}
+\item Guess interest rate $r$
+
+\item Compute the wage implied by the factor pricing conditions:%
+\begin{equation*}
+w=\left( 1-\alpha \right) \left( \frac{\alpha }{r+\delta }\right) ^{\frac{%
+\alpha }{1-\alpha }}
+\end{equation*}
+
+\item Given $\left\{ r,w,\Pi ^{e}(e,e^{\prime }),G^{e}(e^{\prime
+}),p_{ret},p_{death}\right\} $, compute policy functions $g_{a^{\prime
+}}^{Y}(a,e)$, $g_{\ell }^{Y}(a,e)$ and $g_{a^{\prime }}^{R}(a)$. 
+
+\item Given $\left\{ g_{a^{\prime }}^{Y}(a,e),g_{a^{\prime }}^{R}(a),\Pi
+^{e}(e,e^{\prime }),G^{e}(e^{\prime }),p_{ret},p_{death}\right\} $, compute
+invariant distribution $\mu \left( a,e\right) $.
+
+\item Compute implied interest rate%
+\begin{eqnarray*}
+\widehat{K} &=&\sum_{a}\sum_{e}ad\mu \left( a,e\right)  \\
+\widehat{L} &=&\sum_{a}\sum_{e}e\times g_{\ell }^{Y}(a,e)d\mu \left(
+a,e\right) 
+\end{eqnarray*}
+\begin{equation*}
+\widehat{r}=\alpha \left( \frac{\widehat{K}}{\widehat{L}}\right) ^{\alpha
+-1}-\delta 
+\end{equation*}
+
+\item If $\left\vert r-\widehat{r}\right\vert <tol$, then stop. Otherwise,
+update the interest rate $r$ and go back to step 2.
+\end{enumerate}
 
 \item \textbf{Calibration}. Guvenen et al. (2023) assume that newborn
 individuals draw their initial labor efficiency from the initial
