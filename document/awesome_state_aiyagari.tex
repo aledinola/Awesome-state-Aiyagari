@@ -29,7 +29,7 @@ breaklinks=true,pdfborder={0 0 1},backref=section,colorlinks=true]{hyperref}
 %TCIDATA{Version=5.50.0.2953}
 %TCIDATA{<META NAME="SaveForMode" CONTENT="1">}
 %TCIDATA{BibliographyScheme=Manual}
-%TCIDATA{LastRevised=Friday, August 01, 2025 18:12:03}
+%TCIDATA{LastRevised=Friday, August 01, 2025 20:23:12}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 
 \geometry{verbose}
@@ -189,26 +189,25 @@ e_{4} & Y \\
 with size $[n_{e}+1,2]$. We set the transition matrix for this newly defined
 exogenous shock $z$ as follows:%
 \begin{equation*}
-\underbrace{\Pi ^{z}}_{2n_{e}\times 2n_{e}}=%
+\underbrace{\Pi ^{z}}_{(n_{e}+1)\times (n_{e}+1)}=%
 \begin{bmatrix}
 \left( 1-p_{ret}\right) \underbrace{\Pi ^{e}(e,e^{\prime })}_{n_{e}\times
-n_{e}} & p_{ret}I_{n_{e}} \\ 
-p_{death}\underbrace{ones(n_{e},1)G^{e}}_{n_{e}\times n_{e}} & \left(
-1-p_{death}\right) I_{n_{e}}%
+n_{e}} & \underbrace{p_{ret}I_{n_{e}}}_{n_{e}\times 1} \\ 
+\underbrace{p_{death}G^{e}}_{1\times n_{e}} & \underbrace{\left(
+1-p_{death}\right) }_{1\times 1}%
 \end{bmatrix}%
 \end{equation*}%
-where $I_{n_{e}}$ denotes the $n_{e}\times n_{e}$ identity matrix and $%
-ones(n_{e},1)G^{e}$ denotes a matrix with $G^{e}$ in every row. Let $%
-n_{z}=2n_{e}$. The toolkit will compute the arrays $V$, $Policy$ and $%
+where $I_{n_{e}}$ denotes the $n_{e}\times 1$ vector of ones. Let $%
+n_{z}=n_{e}+1$. The toolkit will compute the arrays $V$, $Policy$ and $%
 StationaryDist$%
 \begin{equation*}
-V:n_{a}\times n_{e}\times n_{age}\text{ array}
+V:n_{a}\times n_{z}\text{ array}
 \end{equation*}%
 \begin{equation*}
-Policy:2\times n_{a}\times n_{e}\times n_{age}\text{ array}
+Policy:2\times n_{a}\times n_{z}\text{ array}
 \end{equation*}%
 \begin{equation*}
-StationaryDist:n_{a}\times n_{e}\times n_{age}\text{ array}
+StationaryDist:n_{a}\times n_{z}\text{ array}
 \end{equation*}%
 Note that 
 \begin{eqnarray*}

@@ -245,7 +245,6 @@ fprintf('Share wealth top 20 : %f \n',TopWealthShares(1))
 fprintf('Share wealth top 5  : %f \n',TopWealthShares(2))
 fprintf('Share wealth top 1  : %f \n',TopWealthShares(3))
 
-
 % Plot policy for assets
 pol_d    = squeeze(PolicyValues(1,:,:));
 pol_aprime = squeeze(PolicyValues(2,:,:));
