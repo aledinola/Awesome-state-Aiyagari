@@ -7,15 +7,18 @@ addpath(genpath('C:\Users\aledi\Documents\GitHub\VFIToolkit-matlab'))
 do_GE = 0;
 
 %% Set grid sizes
-n_a = 601; % assets
-n_d = 11;  % labor supply
+n_a = 301; % assets
+n_d = 51;  % labor supply
 
 %% Set parameters to calibrate
 Params.r   = 0.0306151766296052; % Initial guess for interest rate
-Params.pen = 0.517906812023212;    % Pension benefits
-Params.e_awesome = 15; % Awesome productivity level
+Params.pen = 0.517906812023212;  % Pension benefits
+Params.e_awesome = 265;          % Awesome productivity level
 
-Params.P_to_Y = 0.049; % Pensions to GDP equal to 4.9%
+% Calibration targets
+%   pen calibrated to match P_to_Y
+%   e_awesome calibrated to match wealth_top1
+Params.P_to_Y      = 0.049; % Pensions to GDP equal to 4.9%
 Params.wealth_top1 = 0.30; % Wealth share top 1% should be 30%
 
 %% Set toolkit options
@@ -29,7 +32,7 @@ vfoptions.maxiter       = 500;
 vfoptions.howards       = 80; 
 vfoptions.maxhowards    = 500;
 vfoptions.howardsgreedy = 0;
-vfoptions.gridinterplayer = 0;
+vfoptions.gridinterplayer = 1;
 vfoptions.ngridinterp     = 15;
 %vfoptions.divideandconquer = 0;
 
@@ -51,7 +54,7 @@ heteroagentoptions.maxiter = 1000;
 %% Set economic parameters
 
 % Source: GKKOC (2023), Table II.
-Params.sigma  = 4.0;  % CRRA utility function
+Params.sigma = 4.0;  % CRRA utility function
 Params.gamma = 0.445; % Consumption share in utility
 Params.alpha = 0.4;   % Capital share of output
 Params.delta = 0.05;  % Depreciation rate
@@ -60,6 +63,7 @@ Params.delta = 0.05;  % Depreciation rate
 Params.beta       = 0.924; % Discount factor
 Params.prob_ret   = 0.022; % prob. worker --> retired
 Params.prob_death = 0.066; % prob. retired --> worker
+Params.phi_2      = 0.525; % Shifting probability
 
 %% Set grids and shocks
 
@@ -78,10 +82,14 @@ pi_e(3,:) = [1.50 .43 95.82 .020]/100;
 pi_e(4,:) = [10.66 .49 6.11 80.51]/100;
 pi_e = pi_e./sum(pi_e,2);
 
-% - Initial distribution G_e, from which newborn draw e
+% - Invariant or stationary distribution of PI(e,e'), called gamma_e
 aux = pi_e^1000;
-G_e = aux(1,:)';
-G_e = G_e/sum(G_e);
+gamma_e = aux(1,:)';
+gamma_e = gamma_e/sum(gamma_e);
+
+% - Initial distribution G_e, from which newborn draw e
+G_e = funCDR(gamma_e,Params.phi_2);
+%G_e = gamma_e;
 
 % - Set grid for age
 n_age = 2;
@@ -89,13 +97,13 @@ age_grid = [1,2]'; % 1= YOUNG, 2=OLD
 pi_age = [1-Params.prob_ret, Params.prob_ret
           Params.prob_death, 1-Params.prob_death];
 auzz = pi_age^1000;
-prob_age = auzz(1,:)';
-mass_retired = prob_age(2);
+prob_age = auzz(1,:)'; % marginal distribution of age
+mass_retired = prob_age(2); % mass of agents with age=2 (i.e. retirees)
 
 % Grid for assets
 a_curve = 3.0;
 a_min   = 0.0;
-a_max   = 250;
+a_max   = 2000;
 
 a_grid  = a_min+(a_max-a_min)*(linspace(0,1,n_a).^a_curve)';
 
@@ -248,6 +256,16 @@ fprintf('Share wealth top 1  : %f \n',TopWealthShares(3))
 % Plot policy for assets
 pol_d    = squeeze(PolicyValues(1,:,:));
 pol_aprime = squeeze(PolicyValues(2,:,:));
+StationaryDist_a = sum(StationaryDist,2);
+
+% Policy for consumption
+pol_c = zeros(n_a,n_z(1));
+for z_c=1:n_z(1)
+    e_val = z_grid(z_c,1);
+    age_val = z_grid(z_c,2);
+    pol_c(:,z_c) = f_Consumption(pol_d(:,z_c),pol_aprime(:,z_c),a_grid,e_val,age_val,...
+        Params.r,Params.alpha,Params.delta,Params.pen);
+end
 
 figure
 plot(a_grid,a_grid,'--')
@@ -264,3 +282,14 @@ hold on
 plot(a_grid,pol_d(:,n_e))
 legend('e_1','e_{ne}','Location','best')
 title('Policy function for labor supply')
+
+figure
+plot(a_grid,pol_c(:,1))
+hold on
+plot(a_grid,pol_c(:,n_e))
+legend('e_1','e_{ne}','Location','best')
+title('Policy function for consumption')
+
+figure
+plot(a_grid,StationaryDist_a,'LineWidth',2)
+title('Marginal distribution of assets')
