@@ -4,10 +4,10 @@ format long g
 addpath(genpath('C:\Users\aledi\Documents\GitHub\VFIToolkit-matlab'))
 
 %% Set flags
-do_GE = 0;
+do_GE = 1;
 
 %% Set grid sizes
-n_a = 301; % assets
+n_a = 601; % assets
 n_d = 51;  % labor supply
 
 %% Set parameters to calibrate
@@ -18,8 +18,8 @@ Params.e_awesome = 265;          % Awesome productivity level
 % Calibration targets
 %   pen calibrated to match P_to_Y
 %   e_awesome calibrated to match wealth_top1
-Params.P_to_Y      = 0.049; % Pensions to GDP equal to 4.9%
-Params.wealth_top1 = 0.30; % Wealth share top 1% should be 30%
+Params.P_to_Y_data      = 0.049; % Pensions to GDP equal to 4.9%
+Params.wealth_top1_data = 0.30; % Wealth share top 1% should be 30%
 
 %% Set toolkit options
 
@@ -32,7 +32,7 @@ vfoptions.maxiter       = 500;
 vfoptions.howards       = 80; 
 vfoptions.maxhowards    = 500;
 vfoptions.howardsgreedy = 0;
-vfoptions.gridinterplayer = 1;
+vfoptions.gridinterplayer = 0;
 vfoptions.ngridinterp     = 15;
 %vfoptions.divideandconquer = 0;
 
@@ -49,7 +49,7 @@ heteroagentoptions.verbose=1; % verbose means that you want it to give you feedb
 heteroagentoptions.toleranceGEprices=1e-6; % default is 1e-4
 heteroagentoptions.toleranceGEcondns=1e-6; % default is 1e-4
 heteroagentoptions.fminalgo = 1;  % 0=fzero, 1=fminsearch, 8=lsqnonlin 
-heteroagentoptions.maxiter = 1000;
+heteroagentoptions.maxiter = 2;
 
 %% Set economic parameters
 
@@ -150,17 +150,21 @@ FnsToEvaluate.Pensions = @(d,aprime,a,e,age,pen) pen*(age==2);
 
 %% GE conditions
 % Parameters calibrated internally to match targets:
-% e4 --> share of wealth held by top 1% equal to 0.30
+% r --> capital market residual equal to 0 (real general equilibrium)
 % pen --> ratio of transfers to Y equal to 0.049
+% e4 --> share of wealth held by top 1% equal to 0.30
 
 % Declare GE conditions (or calibration targets)
 GeneralEqmEqns.CapitalMarket = @(K,L,r,alpha,delta) r-alpha*(K/L)^(alpha-1)+delta;
-GeneralEqmEqns.target_pen = @(K,L,Pensions,alpha,P_to_Y) Pensions-P_to_Y*(K^alpha*L^(1-alpha));
+GeneralEqmEqns.target_pen = @(K,L,Pensions,alpha,P_to_Y_data) Pensions-P_to_Y_data*(K^alpha*L^(1-alpha));
+GeneralEqmEqns.target_wealth_top1 = @(wealth_top1,wealth_top1_data) wealth_top1-wealth_top1_data;
 
 % Declare names of GE parameters
-GEPriceParamNames={'r','pen'};
+GEPriceParamNames={'r','pen','e_awesome'};
 heteroagentoptions.constrainpositive = {'pen'};
-heteroagentoptions.multiGEweights = [1,1];
+heteroagentoptions.multiGEweights = [1,1,1];
+heteroagentoptions.CustomModelStats = @(V,Policy,StationaryDist,Params,FnsToEvaluate,n_d,n_a,n_z,d_grid,a_grid,z_gridvals,pi_z,heteroagentoptions,vfoptions,simoptions) ...
+    fun_custom_stats(V,Policy,StationaryDist,Params,FnsToEvaluate,n_d,n_a,n_z,d_grid,a_grid,z_gridvals,pi_z,heteroagentoptions,vfoptions,simoptions);
 
 %% Solve model
 disp('===================================================================')
@@ -222,7 +226,9 @@ YY = KK^Params.alpha*LL^(1-Params.alpha);
 PP = Params.pen*mass_retired;
 walras = abs(CC+Params.delta*KK-YY-PP);
 
+% Recompute GE conditions
 GE_CapitalMarket = GeneralEqmEqns.CapitalMarket(KK,LL,Params.r,Params.alpha,Params.delta);
+GE_wealth_top1 = GeneralEqmEqns.target_wealth_top1(TopWealthShares(3),Params.wealth_top1_data);
 
 %% Look at results
 disp('===================================================================')
@@ -235,8 +241,8 @@ disp('GE CONDITIONS')
 fprintf('Capital Market : %f \n',GE_CapitalMarket)
 fprintf('Walras resid   : %f \n',walras)
 disp('CALIBRATION TARGETS')
-fprintf('e_awesome : %f \n',abs(TopWealthShares(3)-0.3))
-fprintf('pension   : %f \n',abs(PP/YY-Params.P_to_Y))
+fprintf('e_awesome : %f \n',abs(TopWealthShares(3)-Params.wealth_top1_data))
+fprintf('pension   : %f \n',abs(PP/YY-Params.P_to_Y_data))
 disp('QUANTITIES')
 fprintf('K/Y        : %f \n',AllStats.K.Mean/YY)
 fprintf('K/L        : %f \n',AllStats.K.Mean/AllStats.L.Mean)
